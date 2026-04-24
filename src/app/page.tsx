@@ -1,65 +1,155 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { Search, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { ProjectCard } from "@/components/project-card";
+import { CategoryFilter } from "@/components/tag-filter";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { categories, type Project } from "@/data/projects";
+
+const PAGE_SIZE = 6;
 
 export default function Home() {
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const observerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((res) => res.json())
+      .then((data) => setAllProjects(data))
+      .finally(() => setInitialLoading(false));
+  }, []);
+
+  const filtered = useMemo(() => {
+    return allProjects
+      .filter((p) => p.published)
+      .filter((p) => {
+        const matchesSearch =
+          search === "" ||
+          p.title.toLowerCase().includes(search.toLowerCase()) ||
+          p.description.toLowerCase().includes(search.toLowerCase());
+        const matchesCategory =
+          selectedCategory === null || p.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+      });
+  }, [allProjects, search, selectedCategory]);
+
+  // 필터 변경 시 보이는 개수 초기화
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [search, selectedCategory]);
+
+  const hasMore = visibleCount < filtered.length;
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || loading) return;
+    setLoading(true);
+    // 약간의 딜레이로 자연스러운 로딩 느낌
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filtered.length));
+      setLoading(false);
+    }, 300);
+  }, [hasMore, loading, filtered.length]);
+
+  // Intersection Observer로 무한스크롤
+  useEffect(() => {
+    const el = observerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
+
+  const visible = filtered.slice(0, visibleCount);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+      <header className="mb-8 flex items-start justify-between gap-4 sm:mb-10">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            hae.company Lab
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-1.5 text-sm text-muted-foreground sm:mt-2 sm:text-base">
+            쓸데없지만 진지하게, AI와 만든 실험들
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <ThemeToggle />
+      </header>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="프로젝트 검색..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
+      <div className="mt-3 sm:mt-4 overflow-x-auto scrollbar-hide">
+        <CategoryFilter
+          categories={categories}
+          selected={selectedCategory}
+          onSelect={setSelectedCategory}
+        />
+      </div>
+
+      <Separator className="my-5 sm:my-6" />
+
+      {initialLoading ? (
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
-      </main>
+      ) : filtered.length === 0 ? (
+        <p className="py-12 text-center text-muted-foreground">
+          검색 결과가 없습니다.
+        </p>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {visible.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div
+              ref={observerRef}
+              className="flex justify-center py-8"
+            >
+              {loading && (
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              )}
+            </div>
+          )}
+
+          {!hasMore && filtered.length > PAGE_SIZE && (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              모든 프로젝트를 불러왔습니다
+            </p>
+          )}
+        </>
+      )}
+
+      <footer className="mt-12 pb-6 text-center text-sm text-muted-foreground sm:mt-16">
+        Built with vibe coding
+      </footer>
     </div>
   );
 }
