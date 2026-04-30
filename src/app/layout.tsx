@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "hae.company Lab",
-  description: "쓸데없지만 진지하게, AI와 만든 실험들",
+  title: "hae02y Lab",
+  description: "심심할 때 만든 것들. 쓸모는 없지만 재밌음.",
 };
 
 export default function RootLayout({

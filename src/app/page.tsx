@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import { Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -83,10 +84,10 @@ export default function Home() {
       <header className="mb-8 flex items-start justify-between gap-4 sm:mb-10">
         <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            hae.company Lab
+            hae02y Lab
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground sm:mt-2 sm:text-base">
-            쓸데없지만 진지하게, AI와 만든 실험들
+            심심할 때 만든 것들. 쓸모는 없지만 재밌음.
           </p>
         </div>
         <ThemeToggle />
@@ -147,8 +148,32 @@ export default function Home() {
         </>
       )}
 
-      <footer className="mt-12 pb-6 text-center text-sm text-muted-foreground sm:mt-16">
-        Built with vibe coding
+      <footer className="mt-12 pb-6 flex flex-col items-center gap-3 sm:mt-16">
+        <a
+          href="https://blog.hae02y.me"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 opacity-40 hover:opacity-70 transition-opacity"
+        >
+          <Image
+            src="/logo-dark.svg"
+            alt="hae02y"
+            width={28}
+            height={19}
+            className="dark:block hidden"
+          />
+          <Image
+            src="/logo-light.svg"
+            alt="hae02y"
+            width={28}
+            height={19}
+            className="dark:hidden block"
+          />
+          <span className="text-[10px] text-muted-foreground tracking-widest">hae02y</span>
+        </a>
+        <p className="text-[11px] text-muted-foreground/50">
+          퇴근하고 만든 사이드 프로젝트 모음
+        </p>
       </footer>
     </div>
   );
