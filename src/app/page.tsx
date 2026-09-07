@@ -172,7 +172,14 @@ export default function Home() {
           <span className="text-[10px] text-muted-foreground tracking-widest">hae02y</span>
         </a>
         <p className="text-[11px] text-muted-foreground/50">
-          퇴근하고 만든 사이드 프로젝트 모음
+          <a
+            href="https://ha-e.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-4 transition-colors hover:text-muted-foreground hover:underline"
+          >
+            ha-e.com
+          </a>
         </p>
       </footer>
     </div>

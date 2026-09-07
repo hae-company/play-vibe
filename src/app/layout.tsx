@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "hae02y Lab",
-  description: "심심할 때 만든 것들. 쓸모는 없지만 재밌음.",
+  title: "Vibe Lab",
+  description: "",
 };
 
 export default function RootLayout({
