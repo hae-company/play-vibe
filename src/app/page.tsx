@@ -87,7 +87,6 @@ export default function Home() {
             hae02y Lab
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground sm:mt-2 sm:text-base">
-            심심할 때 만든 것들. 쓸모는 없지만 재밌음.
           </p>
         </div>
         <ThemeToggle />
